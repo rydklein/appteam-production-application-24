@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct SearchView: View {
-    @State var text = ""
+    @State var text = "laptop"
     var body: some View {
         VStack {
             header
@@ -67,6 +67,7 @@ struct SearchView: View {
                         .frame(width: 20, height: 20)
                     Image(systemName: "truck.box")
                         .font(.system(size: 10))
+                        .foregroundStyle(.background)
                 }
                 .padding(.trailing, 10)
                 Group {
@@ -87,7 +88,25 @@ struct SearchView: View {
     }
 
     var results: some View {
-        EmptyView()
+        VStack (alignment: .leading) {
+            HStack (alignment: .firstTextBaseline, spacing: .zero) {
+                Text("Results for \"\(text)\"")
+                    .font(.title3)
+                    .bold()
+                Text("(1000+)")
+                    .font(.subheadline)
+                    .foregroundStyle(.gray)
+                    .padding(.leading, 6)
+                Spacer()
+            }
+            .padding(.bottom, 1)
+            HStack (spacing: .zero) {
+                Text("Price when purchased online ")
+                Image(systemName: "info.circle")
+            }
+            .font(.footnote)
+            Spacer()
+        }.padding()
     }
 
     var bottomBar: some View {
