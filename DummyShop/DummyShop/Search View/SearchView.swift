@@ -15,6 +15,9 @@ struct SearchView: View {
         VStack {
             header
             Spacer()
+            results
+            Spacer()
+            bottomBar
         }
     }
 
@@ -57,7 +60,7 @@ struct SearchView: View {
                 }
             }
             .padding(.bottom)
-            HStack (alignment: .center) {
+            HStack(alignment: .center, spacing: .zero) {
                 ZStack {
                     Circle()
                         .fill(.cyan)
@@ -65,12 +68,14 @@ struct SearchView: View {
                     Image(systemName: "truck.box")
                         .font(.system(size: 10))
                 }
+                .padding(.trailing, 10)
                 Group {
                     Text("How do you want your items?")
-                    Text("|")
+                    Text("  | ")
                         .fontWeight(.light)
                     Text("27514")
                 }
+                .font(.subheadline)
                 .foregroundStyle(.background)
                 Spacer()
                 Image(systemName: "chevron.down")
@@ -79,6 +84,53 @@ struct SearchView: View {
         }
         .padding()
         .background(Color.blue)
+    }
+
+    var results: some View {
+        EmptyView()
+    }
+
+    var bottomBar: some View {
+        // TODO: refactor this to be not annoying and repetitive
+        // this is probably not getting done
+        HStack(alignment: .bottom) {
+            Group {
+                Spacer()
+                VStack(alignment: .center) {
+                    Image(systemName: "storefront")
+                        .font(.title2)
+                    Text("Shop")
+                }
+                Spacer()
+                VStack {
+                    Image(systemName: "heart")
+                        .font(.title2)
+                    Text("My Items")
+                }
+                Spacer()
+                VStack {
+                    Image(systemName: "sparkle.magnifyingglass")
+                        .font(.title2)
+                    Text("Search")
+                }
+                .foregroundStyle(.blue)
+                Spacer()
+                VStack {
+                    Image(systemName: "circle.grid.2x2")
+                        .font(.title2)
+                    Text("Services")
+                }
+                Spacer()
+                VStack {
+                    Image(systemName: "person.crop.circle")
+                        .font(.title2)
+                    Text("Account")
+                }
+                Spacer()
+            }
+        }
+        .font(.subheadline)
+        .foregroundStyle(.gray)
     }
 }
 
