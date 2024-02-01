@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct SearchView: View {
-    @State var text = "laptop"
+    @StateObject var vm = SearchViewModel()
     var body: some View {
         VStack {
             header
@@ -35,28 +35,30 @@ struct SearchView: View {
                             .font(.callout)
                             .fontWeight(.light)
                         Spacer()
-                        TextField(text: $text) {
+                        TextField(text: $vm.searchText) {
                             Text("Search")
+                        }
+                        .onChange(of: vm.searchText) {
+                            vm.textChanged()
                         }
                         Image(systemName: "barcode.viewfinder")
                     }
                     .padding([.leading, .trailing])
                 }
-                .frame(width: .infinity, height: 30)
+                .frame(height: 30)
                 ZStack(alignment: .topTrailing) {
                     Image(systemName: "cart")
                         .font(.title2)
                         .foregroundStyle(.background)
-                    VStack(alignment: .trailing) {
-                        ZStack {
-                            Circle()
-                                .stroke(.black)
-                                .fill(.yellow)
-                            Text("0")
-                                .font(.system(size: 10))
-                                .foregroundStyle(.black)
-                        }.frame(width: 12, height: 12)
-                    }
+                    ZStack(alignment: .center) {
+                        Circle()
+                            .stroke(.black)
+                            .fill(.yellow)
+                        // I know this is like two pixels to the left but I have more important things to do unfortunately
+                        Text("0")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.black)
+                    }.frame(width: 12, height: 12)
                 }
             }
             .padding(.bottom)
@@ -88,25 +90,68 @@ struct SearchView: View {
     }
 
     var results: some View {
-        VStack (alignment: .leading) {
-            HStack (alignment: .firstTextBaseline, spacing: .zero) {
-                Text("Results for \"\(text)\"")
-                    .font(.title3)
-                    .bold()
-                Text("(1000+)")
-                    .font(.subheadline)
-                    .foregroundStyle(.gray)
-                    .padding(.leading, 6)
+        VStack(alignment: .leading) {
+            switch vm.searchState {
+            case .idle:
                 Spacer()
+                Text("Start typing above to search.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            case .loading:
+                Spacer()
+                ProgressView()
+            case .error(let error):
+                Spacer()
+                VStack(alignment: .center, spacing: 5) {
+                    VStack {
+                        Image(systemName: "x.circle")
+                            .foregroundStyle(.red)
+                            .padding(.bottom, 1)
+                        Text("Error loading data.")
+                    }
+                    Text(error.localizedDescription)
+                        .font(.footnote)
+                        .multilineTextAlignment(.center)
+                    Button(action: {
+                        Task {
+                            await vm.initiateSearch()
+                        }
+                    }) {
+                        Image(systemName: "arrow.circlepath")
+                            .font(.title2)
+                    }
+                }
+            case .success(let products):
+                Group {
+                    HStack(alignment: .firstTextBaseline, spacing: .zero) {
+                        Text("Results for \"\(vm.searchText)\"")
+                            .font(.title3)
+                            .bold()
+                        Text("(\(products.count))")
+                            .font(.subheadline)
+                            .foregroundStyle(.gray)
+                            .padding(.leading, 6)
+                        Spacer()
+                    }
+                    .padding(.bottom, 1)
+                    HStack(spacing: .zero) {
+                        Text("Price when purchased online ")
+                        Image(systemName: "info.circle")
+                    }
+                    .font(.footnote)
+                }
+                .padding([.leading, .trailing])
+                Spacer()
+                // Initialize GeometryReader here and pass it into ScrollView/ProductView to avoid ScrollView dimension weirdness
+                GeometryReader { geo in
+                    List(Array(products.enumerated()), id: \.offset) { _, product in
+                        ProductView(product: product, geo: geo)
+                    }
+                    .listStyle(.plain)
+                }
             }
-            .padding(.bottom, 1)
-            HStack (spacing: .zero) {
-                Text("Price when purchased online ")
-                Image(systemName: "info.circle")
-            }
-            .font(.footnote)
             Spacer()
-        }.padding()
+        }
     }
 
     var bottomBar: some View {
