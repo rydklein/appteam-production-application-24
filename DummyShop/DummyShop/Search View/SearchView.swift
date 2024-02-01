@@ -143,11 +143,22 @@ struct SearchView: View {
                 .padding([.leading, .trailing])
                 Spacer()
                 // Initialize GeometryReader here and pass it into ScrollView/ProductView to avoid ScrollView dimension weirdness
-                GeometryReader { geo in
-                    List(Array(products.enumerated()), id: \.offset) { _, product in
-                        ProductView(product: product, geo: geo)
+                if !products.isEmpty {
+                    GeometryReader { geo in
+                        List(Array(products.enumerated()), id: \.offset) { _, product in
+                            ProductView(product: product, geo: geo)
+                        }
+                        .listStyle(.plain)
                     }
-                    .listStyle(.plain)
+                }
+                else {
+                    HStack(alignment: .center) {
+                        Spacer()
+                        Text("No products found.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                    }
                 }
             }
             Spacer()
